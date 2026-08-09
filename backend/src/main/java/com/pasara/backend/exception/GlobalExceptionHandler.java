@@ -17,5 +17,14 @@ public class GlobalExceptionHandler {
                 .body(Map.of("error", ex.getMessage()));
 
     }
+
+    @ExceptionHandler(RouteNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleRouteNotFound(
+            RouteNotFoundException ex) {
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(Map.of("error", ex.getMessage()));
+    }
 }
 
