@@ -1,13 +1,12 @@
 package com.pasara.backend.Model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+
+import java.util.List;
 
 @Entity
 @Data
@@ -25,4 +24,8 @@ public class Bus {
     private String busType;
     @Min(1)
     private int totalSeats;
+
+    @OneToMany(mappedBy = "bus")
+    private List<Seat> seats;
+
 }

@@ -17,17 +17,8 @@ public class BusService {
 
     private final BusRepository repository;
 
-    public List<BusResponse> getAllBuses() {
-        List<Bus> buses =  repository.findAll();
-        // Converting each bus into bus response
-       return buses
-                .stream()
-                .map(this::toResponse)
-                .toList();
-    }
 
     private BusResponse toResponse(Bus bus) {
-
         return new BusResponse(
                 bus.getId(),
                 bus.getBusNumber(),
@@ -37,6 +28,14 @@ public class BusService {
         );
     }
 
+    public List<BusResponse> getAllBuses() {
+        List<Bus> buses =  repository.findAll();
+        // Converting each bus into bus response
+       return buses
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
     public BusResponse createBus(@Valid BusRequest request) {
         Bus bus = new Bus();
         bus.setBusNumber(request.getBusNumber());
