@@ -26,5 +26,13 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.NOT_FOUND)
                 .body(Map.of("error", ex.getMessage()));
     }
+    @ExceptionHandler(TripNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleTripNotFound(
+            TripNotFoundException ex) {
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(Map.of("error", ex.getMessage()));
+    }
 }
 
