@@ -1,8 +1,11 @@
 package com.pasara.backend.service;
 
 import com.pasara.backend.Model.Bus;
+import com.pasara.backend.dto.BusRequest;
+import com.pasara.backend.dto.BusResponse;
 import com.pasara.backend.exception.BusNotFoundException;
 import com.pasara.backend.repository.BusRepository;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,30 +17,61 @@ public class BusService {
 
     private final BusRepository repository;
 
-    public List<Bus> getAllBuses() {
-        return repository.findAll();
+    public List<BusResponse> getAllBuses() {
+        List<Bus> buses =  repository.findAll();
+        // Converting each bus into bus response
+       return buses
+                .stream()
+                .map(this::toResponse)
+                .toList();
     }
 
-    public Bus createBus(Bus bus) {
-        return repository.save(bus);
+    private BusResponse toResponse(Bus bus) {
+
+        return new BusResponse(
+                bus.getId(),
+                bus.getBusNumber(),
+                bus.getOperatorName(),
+                bus.getBusType(),
+                bus.getTotalSeats()
+        );
+    }
+
+    public BusResponse createBus(@Valid BusRequest request) {
+        Bus bus = new Bus();
+        bus.setBusNumber(request.getBusNumber());
+        bus.setOperatorName(request.getOperatorName());
+        bus.setBusType(request.getBusType());
+        bus.setTotalSeats(request.getTotalSeats());
+
+        Bus savedBus = repository.save(bus);
+        return toResponse(savedBus);
 
     }
 
-    public Bus getBusById(Long id) {
-        return repository.findById(id)
+    public BusResponse getBusById(Long id) {
+        Bus bus =  repository.findById(id)
                 .orElseThrow(() -> new BusNotFoundException(id));
-
+        return toResponse(bus);
     }
 
-    public Bus updateBus(Long id, Bus bus){
+    public BusResponse updateBus(Long id, @Valid  BusRequest request){
           Bus existingBus =  repository.findById(id)
                 .orElseThrow(() -> new BusNotFoundException(id));
-          existingBus.setBusNumber(bus.getBusNumber());
-          existingBus.setOperatorName(bus.getOperatorName());
-          existingBus.setBusType(bus.getBusType());
-          existingBus.setTotalSeats(bus.getTotalSeats());
+          existingBus.setBusNumber(request.getBusNumber());
+          existingBus.setOperatorName(request.getOperatorName());
+          existingBus.setBusType(request.getBusType());
+          existingBus.setTotalSeats(request.getTotalSeats());
 
-           return repository.save(existingBus);
+          Bus updateBus = repository.save(existingBus);
 
+           return toResponse(updateBus);
+
+    }
+
+    public void deleteBus(Long id) {
+        Bus deleteBus = repository.findById(id)
+                .orElseThrow(() -> new BusNotFoundException(id));
+        repository.delete(deleteBus);
     }
 }
