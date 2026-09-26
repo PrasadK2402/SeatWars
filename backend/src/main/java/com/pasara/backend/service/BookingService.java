@@ -4,7 +4,6 @@ import com.pasara.backend.Model.*;
 import com.pasara.backend.dto.BookingCreatedEvent;
 import com.pasara.backend.dto.BookingRequest;
 import com.pasara.backend.dto.BookingResponse;
-import com.pasara.backend.dto.TripResponse;
 import com.pasara.backend.exception.BookingAccessException;
 import com.pasara.backend.exception.BookingAlreadyCancelledException;
 import com.pasara.backend.exception.BookingNotFoundException;
