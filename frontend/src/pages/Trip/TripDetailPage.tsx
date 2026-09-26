@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import axios from "axios";
 import { getTripById, getTripSeats } from "../../api/trips";
 import { createBooking } from "../../api/bookings";
 import type { Trip, TripSeat } from "../../types";
+import { useAuth } from "../../hooks/useAuth";
 import { Card, CardBody, CardHeader } from "../../components/ui/Card";
 import { Spinner } from "../../components/ui/Spinner";
 import { EmptyState, ErrorState } from "../../components/ui/EmptyState";
@@ -15,6 +17,8 @@ import { ArrowLeft, Bus } from "lucide-react";
 export function TripDetailPage() {
   const { tripId } = useParams<{ tripId: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
+  const { isAuthenticated } = useAuth();
   const id = Number(tripId);
 
   const [trip, setTrip] = useState<Trip | null>(null);
@@ -76,6 +80,11 @@ export function TripDetailPage() {
       sessionStorage.setItem("bookingTrip", JSON.stringify(trip));
       navigate("/booking/confirmation");
     } catch (e) {
+      const status = axios.isAxiosError(e) ? e.response?.status : undefined;
+      if (status === 401 || status === 403) {
+        navigate("/login", { state: { from: location.pathname } });
+        return;
+      }
       const msg = getErrorMessage(e);
       setBookingError(msg);
       // If seat conflict, refresh seats
@@ -130,7 +139,18 @@ export function TripDetailPage() {
 
               <div>
                 <h3 className="mb-3 font-medium text-slate-900">Passenger Details</h3>
-                {!selected ? (
+                {!isAuthenticated ? (
+                  <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-4 text-center">
+                    <p className="text-sm text-slate-600">Please log in to book this seat.</p>
+                    <Link
+                      to="/login"
+                      state={{ from: location.pathname }}
+                      className="mt-3 inline-block rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+                    >
+                      Login to Book
+                    </Link>
+                  </div>
+                ) : !selected ? (
                   <p className="text-sm text-slate-500">Please select a seat to continue.</p>
                 ) : (
                   <>

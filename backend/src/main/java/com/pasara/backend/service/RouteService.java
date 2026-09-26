@@ -6,6 +6,8 @@ import com.pasara.backend.dto.RouteResponse;
 import com.pasara.backend.exception.RouteNotFoundException;
 import com.pasara.backend.repository.RouteRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,7 +28,7 @@ public class RouteService {
                 route.getDestination()
         );
     }
-
+    @CacheEvict(value = "routes", allEntries = true)
     public RouteResponse createRoute(RouteRequest request) {
 
         Route route = new Route();
@@ -39,7 +41,7 @@ public class RouteService {
         return toResponse(savedRoute);
     }
 
-
+    @Cacheable("routes")
     public List<RouteResponse> getAllRoutes() {
 
         return routeRepository.findAll()
@@ -56,5 +58,20 @@ public class RouteService {
         return toResponse(route);
     }
 
+    @CacheEvict(value = "routes", allEntries = true)
+    public RouteResponse updateRoute(Long id ,RouteRequest request){
+        Route route = routeRepository.findById(id)
+                .orElseThrow(() -> new RouteNotFoundException(id));
+        route.setSource(request.getSource());
+        route.setSource(request.getDestination());
+        Route updateRoute = routeRepository.save(route);
+        return toResponse(updateRoute);
+    }
+    @CacheEvict(value = "routes", allEntries = true)
+    public void deleteRoute(Long id){
+        Route route = routeRepository.findById(id)
+                .orElseThrow(() -> new RouteNotFoundException(id));
+        routeRepository.delete(route);
+    }
 
 }

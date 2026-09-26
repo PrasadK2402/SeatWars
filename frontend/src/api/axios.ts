@@ -1,16 +1,21 @@
 import axios, { AxiosError } from "axios";
+import { loadAuth, clearAuth } from "../auth/session";
 
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:8080",
+  baseURL: import.meta.env.VITE_API_BASE_URL || "/api",
   headers: {
     "Content-Type": "application/json",
   },
   timeout: 15000,
 });
 
-// Request interceptor - for future auth, logging in dev
+// Request interceptor - attach JWT auth token if present
 api.interceptors.request.use(
   (config) => {
+    const saved = loadAuth();
+    if (saved) {
+      config.headers.Authorization = `Bearer ${saved.token}`;
+    }
     if (import.meta.env.DEV) {
       console.log(`[API] ${config.method?.toUpperCase()} ${config.url}`);
     }
@@ -23,6 +28,9 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error: AxiosError) => {
+    if (error.response?.status === 401) {
+      clearAuth();
+    }
     if (import.meta.env.DEV) {
       console.error(`[API Error]`, error.response?.status, error.response?.data);
     }
@@ -46,12 +54,14 @@ export function getErrorMessage(error: unknown): string {
       if ("message" in data && typeof data.message === "string") return data.message;
     }
     const status = axiosError.response?.status;
+    if (status === 401) return "Please log in to continue.";
+    if (status === 403) return "You don't have permission to perform this action.";
     if (status === 409) return "This seat is no longer available. Please select another seat.";
     if (status === 404) return "Requested resource not found.";
     if (status === 400) return "Please check your input and try again.";
     if (status === 500) return "Server error. Please try again later.";
     if (axiosError.code === "ERR_NETWORK" || axiosError.message === "Network Error") {
-      return "Unable to connect to server. Ensure backend is running on " + (import.meta.env.VITE_API_BASE_URL || "http://localhost:8080");
+      return "Unable to connect to server. Ensure backend is running on " ;
     }
     if (axiosError.response?.statusText) return axiosError.response.statusText;
     return axiosError.message || "Something went wrong. Please try again.";

@@ -26,6 +26,10 @@ public class Booking {
     @JoinColumn(name = "trip_seat_id", nullable = false)
     private TripSeat tripSeat;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private AppUser user;
+
     private String passengerName;
     private int passengerAge;
 

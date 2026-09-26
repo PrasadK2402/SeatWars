@@ -57,7 +57,7 @@ export function SearchPage() {
     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
       <Card>
         <CardBody>
-          <h2 className="text-lg font-semibold text-slate-900">es</h2>
+          <h2 className="text-lg font-semibold text-slate-900">Buses</h2>
           <div className="mt-4">
             <SearchForm routes={routes} initial={{ source, destination, travelDate }} onSearch={handleSearch} loading={loading} />
           </div>

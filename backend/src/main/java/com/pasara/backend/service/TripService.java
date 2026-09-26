@@ -11,6 +11,7 @@ import com.pasara.backend.exception.TripNotFoundException;
 import com.pasara.backend.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -88,6 +89,10 @@ public class TripService {
     }
 
     // Trip Search
+    @Cacheable(
+            value = "trips",
+            key= "'trips:' + #request.source.toLowerCase() + ':' + #request.destination.toLowerCase() + ':' + #request.travelDate"
+    )
     public List<TripResponse> searchTrips(TripSearchRequest request) {
 
         return tripRepository
