@@ -68,7 +68,7 @@ services:
         condition: service_started
   frontend:
     build:
-      context: ./frontend
+      context: ./seatwars-frontend
     container_name: pasara-frontend
     ports:
       - "3000:80"
